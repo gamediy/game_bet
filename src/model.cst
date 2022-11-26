@@ -1,0 +1,109 @@
+﻿<%@ CodeTemplate Language="C#" TargetLanguage="C#" ResponseEncoding="UTF-8" Description="Generates a single entity business class." Debug="True" %>
+<%-- Required Properties  --%>
+<%@ Property Name="Table" Type="TableSchema" Optional="False" DeepLoad="True" Category="Optional" Description="If true, the template will not output using and namespace statements." %>
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Import Namespace="SchemaExplorer" %>
+
+package model
+
+import (
+	"time"
+)
+// <%=Table.Description %>
+type <%=GetTableName() %> struct {
+    <%foreach(var m in Table.Columns){%>
+    <%=GetName(m.Name)%> <%=GetType(m.NativeType)%>  //<%=m.Description %>
+    <%}%>
+
+}
+
+func (<%=GetTableName() %>) TableName() string {
+	return "<%=Table.Name%>"
+}
+
+<script runat="template">
+
+       private string GetType(string type)
+        {
+            string flg="string";
+            switch(type)
+            {
+                case "varchar":
+                case "nvarchar":
+                case "ntext":
+                case "geography":
+                case "char":
+                    flg="string";
+                    break;
+                case "bigint":
+                    flg="int64";
+                    break;
+                case "int":
+                    flg="int";
+                    break;
+                case "smallint":
+               
+                    flg="int8";
+                    break;
+                case "decimal":
+                    flg="float32";
+                    break;
+                case "bit":
+                    flg="bool";
+                    break;
+                case "datetime":
+                case "timestamp":
+                    case "time":
+                    flg="time.Time";
+                    break;
+                case "date":
+                    flg="time.Time";
+                    break;
+                case "float":
+                    flg="float";
+                    break;
+                case "tinyint":
+                    flg="int8";
+                    break;
+             
+                    case "double":
+                    flg="float64";
+                    break;
+            }
+            return flg;
+        }
+        private string GetName(string v)
+        {
+            int i1=1;
+            var list=v.Split('_');
+            
+            
+            string name="";
+            for(int i=0;i<list.Length;i++){
+                string item=list[i];
+                name+=item.Substring(0, 1).ToUpper()+item.Substring(1);
+            }
+          
+            
+            return name;
+       
+        }
+        private string GetPrivateName(string v)
+        {
+           return "_"+GetName(v).ToLower();
+        }
+       private string GetTableName()
+        {
+                 var list=Table.Name.Split('_');
+            string name="";
+            for(var i=0;i<list.Length;i++){
+                var item=list[i];
+                name+=item.Substring(0, 1).ToUpper()+item.Substring(1);
+            }
+          
+            
+            return name;
+       
+        }
+     
+</script>
