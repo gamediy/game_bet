@@ -3,7 +3,7 @@ package utils
 type Result[T any] struct {
 	Code      int         `json:"code"`
 	Data      T           `json:"data"`
-	IsSuccess bool        `json:"isSuccess"`
+	IsSuccess bool        `json:"is_success"`
 	Message   interface{} `json:"message"`
 }
 

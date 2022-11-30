@@ -8,12 +8,14 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 	"time"
 )
 
 type UserInfo struct {
 	Account string
-	Uid     int32
+	Uid     int64
+	Pid     int64
 	Xid     string
 	Email   string
 }
@@ -37,16 +39,25 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 					"Uid":     v.Uid,
 					"Account": v.Account,
 					"Email":   v.Email,
+					"Pid":     v.Pid,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			uid := claims["Uid"].(float64)
+			v, ok := claims["Pid"]
+			var pid int64
+			if ok {
+				a := v.(float64)
+				pid = int64(a)
+			}
 			return &UserInfo{
-				Uid:     claims["Uid"].(int32),
+				Uid:     int64(uid),
 				Account: claims["Account"].(string),
 				Email:   claims["Email"].(string),
+				Pid:     pid,
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -57,7 +68,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 			userID := loginVals.Account
 			password := utils.Md5(utils.Md5Key + loginVals.Password)
 			var user model.UserBase
-			utils.DbMain.First(&user, "account=? and password=? and status=1", userID, password)
+			utils.DB.First(&user, "account=? and password=? and status=1", userID, password)
 			if user.Uid == 0 {
 				return nil, jwt.ErrFailedAuthentication
 			}
@@ -66,6 +77,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 				Uid:     user.Uid,
 				Email:   user.Email,
 				Xid:     user.Xid,
+				Pid:     user.Pid,
 			}
 			err := utils.RedisSet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, user.Uid), u, time.Hour*48)
 			if err != nil {
@@ -123,4 +135,23 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 	}
 
 	return authMiddleware
+}
+
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+		c.Header("Access-Control-Allow-Headers", "*")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+
+		//放行所有OPTIONS方法
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+		// 处理请求
+		c.Next()
+	}
 }

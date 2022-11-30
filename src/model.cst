@@ -9,16 +9,32 @@ package model
 import (
 	"time"
 )
-// <%=Table.Description %>
+
+func (this *<%=GetTableName() %>) <%=GetTableName() %>DB() *gorm.DB {
+	return utils.DB.Table("<%=Table.Name%>")
+}
+
+<%if(Table.Description!=""){%>//<%=Table.Description %><%}%>   
 type <%=GetTableName() %> struct {
     <%foreach(var m in Table.Columns){%>
-    <%=GetName(m.Name)%> <%=GetType(m.NativeType)%>  //<%=m.Description %>
+    <%=GetName(m.Name)%> <%=GetType(m.NativeType)%> <%if(m.IsPrimaryKeyMember) {%>`gorm:"primary_key" json:"<%=m.Name%>"`<%}else{%>`json:"<%=m.Name%>"`<%} %> <%if(m.Description !=""){%> //<%=m.Description %><%}%>              
     <%}%>
-
 }
 
 func (<%=GetTableName() %>) TableName() string {
 	return "<%=Table.Name%>"
+}
+
+func (this *<%=GetTableName() %>) GetBy<%=GetName(Table.Columns[0].Name) %>Cache(<%=Table.Columns[0].Name%> int32) *<%=GetTableName() %> {
+	redisKey := fmt.Sprintf("<%=Table.Name%>:<%=Table.Columns[0].Name%>:%d", <%=Table.Columns[0].Name%>)
+	err := utils.RedisGet(redisKey, this)
+	if err != nil {
+		this.<%=GetTableName() %>DB().First(this, <%=Table.Columns[0].Name%>)
+		if this.<%=GetName(Table.Columns[0].Name) %> > 0 {
+			utils.RedisSet(redisKey, this, -1)
+		}
+	}
+	return this
 }
 
 <script runat="template">
@@ -39,7 +55,7 @@ func (<%=GetTableName() %>) TableName() string {
                     flg="int64";
                     break;
                 case "int":
-                    flg="int";
+                    flg="int32";
                     break;
                 case "smallint":
                

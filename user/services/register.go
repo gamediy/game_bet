@@ -40,7 +40,7 @@ func (this Register) Logic() *utils.Result[string] {
 	var count int64
 
 	var userBaseModel = &model.UserBase{}
-	err = utils.DbMain.Model(userBaseModel).Where("email=? and status=1", this.Email).Count(&count).Error
+	err = utils.DB.Model(userBaseModel).Where("email=? or account=?", this.Email, this.Email).Count(&count).Error
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -48,29 +48,30 @@ func (this Register) Logic() *utils.Result[string] {
 		result.Message = "Already registered"
 		return result
 	}
-
+	userBaseModel.Status = 1
 	userBaseModel.Email = this.Email
 	userBaseModel.Password = utils.Md5Encryption(this.Password)
 	userBaseModel.Account = this.Email
 	userBaseModel.Ip = this.Ip
 	userBaseModel.Client_agent = this.ClientAgent
-	userMoneyModel := &model.UserMoney{}
+	userMoneyModel := &model.UserAmount{}
 	userMoneyModel.Account = userBaseModel.Account
 	userMoneyModel.Email = userBaseModel.Email
 	userMoneyModel.Balance = 0.0
-	err = utils.DbMain.Transaction(func(tx *gorm.DB) error {
+	err = utils.DB.Transaction(func(tx *gorm.DB) error {
 		create := tx.Create(userBaseModel)
 
 		if create.Error != nil {
 			return err
 		}
-		userMoneyModel.Uid = create.RowsAffected
+		userMoneyModel.Uid = userBaseModel.Uid
 		err = tx.Create(userMoneyModel).Error
 		if err != nil {
 			return err
 		}
 		return nil
 	})
+
 	if err != nil {
 		result.Message = err.Error()
 		return result

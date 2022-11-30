@@ -51,7 +51,7 @@ create table sys_conf
         primary key,
     detail int          not null,
     status int          not null,
-    type   varchar(100) null comment 'user,deposit,admin'
+    type   varchar(100) null comment 'user,order,admin'
 );
 create table deposit
 (

@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-var DbMain *gorm.DB
+var DB *gorm.DB
 
 var err error
 
@@ -19,7 +19,7 @@ func init() {
 
 }
 func mysqlInit() {
-	DbMain, err = gorm.Open(mysql.Open(viper.GetString("database.main_model")), &gorm.Config{})
+	DB, err = gorm.Open(mysql.Open(viper.GetString("database.main")), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
 	}

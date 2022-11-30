@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 	"time"
@@ -18,12 +19,19 @@ func redisInit() {
 	})
 
 }
-func RedisGet[T any](key string, data *T) {
+func RedisGet[T any](key string, data *T) error {
 	result, err := RedisMain.Get(context.Background(), key).Result()
 	if err != nil {
-		return
+		return err
 	}
-	json.Unmarshal([]byte(result), data)
+	if result == "" {
+		return errors.New("no data")
+	}
+	err = json.Unmarshal([]byte(result), data)
+	if err != nil {
+		return err
+	}
+	return nil
 
 }
 func RedisSet[T any](key string, data T, exp time.Duration) error {
