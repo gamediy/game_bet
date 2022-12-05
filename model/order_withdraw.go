@@ -28,6 +28,8 @@ type OrderWithdraw struct {
 	CreatedAt      time.Time `json:"created_at"`
 	Net            string    `json:"net"`
 	AmountItemCode int32     `json:"amount_item_code"`
+	Currency       string    `json:"currency"`
+	Protocol       string    `json:"protocol"`
 }
 
 func (OrderWithdraw) TableName() string {

@@ -27,7 +27,7 @@ func mysqlInit() {
 
 func Init() {
 	once.Do(func() {
-
+		//time.Local = time.UTC
 		configInit()
 		mysqlInit()
 		redisInit()
@@ -38,6 +38,9 @@ func Init() {
 
 func configInit() {
 	env := viper.Get("env")
+	if env == nil {
+		panic("please set env")
+	}
 	viper.SetConfigName(env.(string))
 	viper.SetConfigType("toml")
 	viper.AddConfigPath("./config") //搜索路径可以设置多个，viper 会根据设置顺序依次查找

@@ -1,4 +1,4 @@
-package core
+package auth
 
 import (
 	"bet/core/key"
@@ -6,6 +6,7 @@ import (
 	"bet/utils"
 	"fmt"
 	jwt "github.com/appleboy/gin-jwt/v2"
+
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -13,11 +14,12 @@ import (
 )
 
 type UserInfo struct {
-	Account string
-	Uid     int64
-	Pid     int64
-	Xid     string
-	Email   string
+	Account    string
+	Uid        int64
+	Pid        int64
+	Xid        string
+	Email      string
+	ParentPath string
 }
 
 type login struct {
@@ -26,12 +28,12 @@ type login struct {
 }
 
 func GinJWTMiddleware() *jwt.GinJWTMiddleware {
-	// the jwt middleware
+	// the auth middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "2xbet zone",
 		Key:         []byte("2xbet2xbet...admin888..."),
-		Timeout:     time.Hour * 48,
-		MaxRefresh:  time.Hour * 48,
+		Timeout:     time.Hour * 480,
+		MaxRefresh:  time.Hour * 480,
 		IdentityKey: "Uid",
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*UserInfo); ok {
@@ -54,10 +56,11 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 				pid = int64(a)
 			}
 			return &UserInfo{
-				Uid:     int64(uid),
-				Account: claims["Account"].(string),
-				Email:   claims["Email"].(string),
-				Pid:     pid,
+				Uid:        int64(uid),
+				Account:    claims["Account"].(string),
+				Email:      claims["Email"].(string),
+				Pid:        pid,
+				ParentPath: claims["ParentPath"].(string),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -73,13 +76,14 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 				return nil, jwt.ErrFailedAuthentication
 			}
 			u := &UserInfo{
-				Account: userID,
-				Uid:     user.Uid,
-				Email:   user.Email,
-				Xid:     user.Xid,
-				Pid:     user.Pid,
+				Account:    userID,
+				Uid:        user.Uid,
+				Email:      user.Email,
+				Xid:        user.Xid,
+				Pid:        user.Pid,
+				ParentPath: user.ParentPath,
 			}
-			err := utils.RedisSet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, user.Uid), u, time.Hour*48)
+			err := utils.RedisSet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, user.Uid), u, time.Hour*480)
 			if err != nil {
 				fmt.Println(err)
 				return nil, err
@@ -89,6 +93,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
+
 			v, ok := data.(*UserInfo)
 			if !ok {
 				return false
@@ -114,7 +119,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 		// - "query:<name>"
 		// - "cookie:<name>"
 		// - "param:<name>"
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		TokenLookup: "header: Authorization, query: token, cookie: auth",
 		// TokenLookup: "query:token",
 		// TokenLookup: "cookie:token",
 
@@ -136,7 +141,11 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 
 	return authMiddleware
 }
-
+func GetUserInfo(gx *gin.Context) *UserInfo {
+	uid := gx.Keys["Uid"]
+	info := uid.(*UserInfo)
+	return info
+}
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method

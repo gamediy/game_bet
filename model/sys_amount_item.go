@@ -25,6 +25,7 @@ type SysAmountItem struct {
 	Sort     int32  `json:"sort"`
 	Category string `json:"category"`
 	Country  string `json:"country"`
+	Currency string `json:"currency"`
 	Protocol string `json:"protocol"`
 }
 

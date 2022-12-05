@@ -4,6 +4,7 @@ import (
 	"bet/utils"
 	"fmt"
 	"gorm.io/gorm"
+	"time"
 )
 
 func (this *OrderBet) OrderBetDB() *gorm.DB {
@@ -11,18 +12,24 @@ func (this *OrderBet) OrderBetDB() *gorm.DB {
 }
 
 type OrderBet struct {
-	OrderNo  int64  `gorm:"primary_key" json:"order_no"`
-	Uid      int64  `json:"uid"`
-	Pid      int64  `json:"pid"`
-	Account  string `json:"account"`
-	GameCode int32  `json:"game_code"`
-	GameType int32  `json:"game_type"`
-	Amount   int64  `json:"order"`
-	Status   int32  `json:"status"`
-	GameName string `json:"game_name"`
-	Won      int64  `json:"won"`
-	PlayCode int32  `json:"play_code"`
-	PlayName string `json:"play_name"`
+	OrderNo    int64     `gorm:"primary_key" json:"order_no"`
+	Uid        int64     `json:"uid"`
+	Pid        int64     `json:"pid"`
+	Account    string    `json:"account"`
+	GameCode   int32     `json:"game_code"`
+	GameType   string    `json:"game_type"`
+	Amount     int64     `json:"amount"`
+	Status     int32     `json:"status"`
+	GameName   string    `json:"game_name"`
+	Won        int64     `json:"won"`
+	PlayCode   int32     `json:"play_code"`
+	PlayName   string    `json:"play_name"`
+	Title      string    `json:"title"`
+	ParentPath string    `json:"parent_path"`
+	OpenResult string    `json:"open_result"`
+	CreateAt   time.Time `json:"create_at"`
+	SettleAt   time.Time `json:"settle_at"`
+	Rate       int64     `json:"rate"`
 }
 
 func (OrderBet) TableName() string {
@@ -34,7 +41,7 @@ func (this *OrderBet) GetByOrderNoCache(order_no int32) *OrderBet {
 	err := utils.RedisGet(redisKey, this)
 	if err != nil {
 		this.OrderBetDB().First(this, order_no)
-		if this.OrderNo >= 0 {
+		if this.OrderNo > 0 {
 			utils.RedisSet(redisKey, this, -1)
 		}
 	}

@@ -1,14 +1,12 @@
 package services
 
 import (
-	"bet/core"
-	"bet/core/const/blance_code"
+	"bet/core/auth"
 	"bet/core/const/status/deposit_status"
 	"bet/model"
 	"bet/net/tron"
 	"bet/utils"
 	"fmt"
-	"gorm.io/gorm"
 )
 
 type Deposit struct {
@@ -16,7 +14,7 @@ type Deposit struct {
 	AmountItemCode int32   `json:"amount_item_code"`
 }
 
-func (this *Deposit) DepositFunc(info *core.UserInfo) utils.Result[interface{}] {
+func (this *Deposit) DepositFunc(info *auth.UserInfo) utils.Result[interface{}] {
 	item := &model.SysAmountItem{}
 	amountItem := item.GetByCodeCache(this.AmountItemCode)
 	result := utils.Result[interface{}]{
@@ -68,23 +66,13 @@ func (this *Deposit) DepositFunc(info *core.UserInfo) utils.Result[interface{}] 
 
 	}
 
-	balanceUpdate := core.BalanceUpdate{
-		Uid:             info.Uid,
-		Amount:          money,
-		BalanceCode:     blance_code.Deposit,
-		OrderNoRelation: deposit.OrderNo,
-	}
-	res := balanceUpdate.Update(func(tx *gorm.DB) error {
-		err := tx.Create(deposit).Error
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if !res.IsSuccess {
-		result.Message = res.Message
+	orderDeposit := &model.OrderDeposit{}
+	err := orderDeposit.OrderDepositDB().Create(deposit).Error
+	if err != nil {
+		result.Message = err.Error()
 		return result
 	}
+
 	result.Code = 200
 	result.IsSuccess = true
 	return result

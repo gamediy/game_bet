@@ -1,8 +1,10 @@
 package services
 
 import (
-	"bet/core"
-	"bet/core/const/blance_code"
+	"bet/core/auth"
+	"bet/core/balance"
+	"bet/core/const/amount_net"
+	"bet/core/const/balance_code"
 	"bet/core/const/status/withdraw_status"
 	"bet/model"
 	"bet/net/tron"
@@ -13,12 +15,12 @@ import (
 )
 
 type Withdraw struct {
-	Amount         float32 `validate:"required,min=1" json:"order"`
+	Amount         float32 `validate:"required,min=1" json:"amount"`
 	Address        string  `validate:"required" json:"address"`
 	AmountItemCode int32   `validate:"required" json:"amount_item_code"`
 }
 
-func (this *Withdraw) WithdrawFunc(userInfo *core.UserInfo) utils.Result[string] {
+func (this *Withdraw) WithdrawFunc(userInfo *auth.UserInfo) utils.Result[string] {
 	result := utils.Result[string]{
 		Code:      500,
 		IsSuccess: false,
@@ -42,7 +44,7 @@ func (this *Withdraw) WithdrawFunc(userInfo *core.UserInfo) utils.Result[string]
 	}
 	if amountItem.Fee > 0 {
 
-		withdrawMoney = withdrawMoney - amountItem.Fee
+		withdrawMoney = withdrawMoney + amountItem.Fee
 		if withdrawMoney <= 0 {
 			result.Message = "Wrong order"
 			return result
@@ -55,10 +57,12 @@ func (this *Withdraw) WithdrawFunc(userInfo *core.UserInfo) utils.Result[string]
 		result.Message = "Wrong user"
 		return result
 	}
-	_, err = tron.TronGrpcCLient.GetAccount(this.Address)
-	if err != nil {
-		result.Message = "Wrong address"
-		return result
+	if amountItem.Net == amount_net.TRON {
+		_, err = tron.TronGrpcCLient.GetAccount(this.Address)
+		if err != nil {
+			result.Message = "Wrong address"
+			return result
+		}
 	}
 
 	if withdrawMoney > userMoney.Balance {
@@ -66,13 +70,14 @@ func (this *Withdraw) WithdrawFunc(userInfo *core.UserInfo) utils.Result[string]
 		return result
 	}
 	orderNo := utils.SnowflakeId()
-	update := core.BalanceUpdate{
+	update := balance.BalanceUpdate{
 		Uid:             userMoney.Uid,
 		OrderNoRelation: orderNo,
 		Title:           "Withdraw",
-		BalanceCode:     blance_code.Withdraw,
+		BalanceCode:     balance_code.Withdraw,
+		Amount:          withdrawMoney,
 	}
-	update.Update(func(tx *gorm.DB) error {
+	res := update.Update(func(tx *gorm.DB) error {
 		withdraw := &model.OrderWithdraw{
 			OrderNo:      orderNo,
 			Uid:          userMoney.Uid,
@@ -83,8 +88,10 @@ func (this *Withdraw) WithdrawFunc(userInfo *core.UserInfo) utils.Result[string]
 			StatusRemark: "Processing",
 			Address:      this.Address,
 			Fee:          amountItem.Fee,
-			Amount:       withdrawMoney,
+			Amount:       withdrawMoney - amountItem.Fee,
 			Net:          amountItem.Net,
+			Currency:     amountItem.Currency,
+			Protocol:     amountItem.Protocol,
 		}
 		err = withdraw.OrderWithdrawDB().Create(withdraw).Error
 		if err != nil {
@@ -92,6 +99,10 @@ func (this *Withdraw) WithdrawFunc(userInfo *core.UserInfo) utils.Result[string]
 		}
 		return nil
 	})
+	if !res.IsSuccess {
+		result.Message = res.Message
+		return result
+	}
 	result.Message = "Withdraw processing"
 	result.Code = 200
 	result.IsSuccess = true

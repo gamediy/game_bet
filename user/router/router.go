@@ -1,7 +1,7 @@
 package router
 
 import (
-	"bet/core"
+	"bet/core/auth"
 	"bet/user/controller"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -28,13 +28,14 @@ func Cors() gin.HandlerFunc {
 func Run() {
 	engine := gin.Default()
 	engine.Use(Cors())
-	engine.POST("/api/user/login", core.GinJWTMiddleware().LoginHandler)
+	engine.POST("/api/user/login", auth.GinJWTMiddleware().LoginHandler)
 	engine.POST("/api/user/register", controller.Register)
 
-	auth := engine.Group("/api/user")
-	auth.Use(core.GinJWTMiddleware().MiddlewareFunc())
+	api := engine.Group("/api/user")
+
+	api.Use(auth.GinJWTMiddleware().MiddlewareFunc())
 	{
-		auth.POST("/userinfo", controller.UserInfo)
+		api.POST("/userinfo", controller.UserInfo)
 	}
 	engine.Run(":8081")
 }

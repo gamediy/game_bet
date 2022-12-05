@@ -1,4 +1,4 @@
-package blance_code
+package balance_code
 
 const (
 	Bet         = -100

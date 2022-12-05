@@ -30,6 +30,7 @@ func (this *Result[T]) SuccessByCode(data T, code int) *Result[T] {
 	}
 }
 func (this *Result[T]) Error(msg interface{}) *Result[T] {
+
 	return &Result[T]{
 
 		Code:      -200,

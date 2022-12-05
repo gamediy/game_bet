@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"bet/core"
+	"bet/core/auth"
 	"bet/user/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,7 +17,7 @@ func Register(gx *gin.Context) {
 func UserInfo(gx *gin.Context) {
 
 	uid := gx.Keys["Uid"]
-	info := uid.(*core.UserInfo)
+	info := uid.(*auth.UserInfo)
 	gx.JSON(http.StatusOK, gin.H{
 		"uid":     info.Uid,
 		"account": info.Account,

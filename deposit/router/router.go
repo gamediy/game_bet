@@ -2,20 +2,19 @@ package router
 
 import (
 	"bet/core/auth"
-	"bet/order/controller"
+	"bet/deposit/controller"
 	"github.com/gin-gonic/gin"
 )
 
 func Run() {
 	engine := gin.Default()
 	engine.Use(auth.Cors())
-	api := engine.Group("/api/order")
+	api := engine.Group("/api/deposit")
 	api.Use(auth.GinJWTMiddleware().MiddlewareFunc())
 	{
-		api.POST("/withdraw", controller.Withdraw)
+
 		api.POST("/deposit", controller.Deposit)
-		api.POST("/bet", controller.Bet)
 
 	}
-	engine.Run(":8082")
+	engine.Run(":8084")
 }

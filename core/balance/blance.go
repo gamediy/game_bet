@@ -1,7 +1,7 @@
-package core
+package balance
 
 import (
-	"bet/core/const/blance_code"
+	"bet/core/const/balance_code"
 	"bet/model"
 	"bet/utils"
 	"context"
@@ -30,7 +30,9 @@ func (this *BalanceUpdate) Update(fc func(tx *gorm.DB) error) *utils.Result[stri
 	var res *utils.Result[string]
 	for {
 		res, err = this.updateExec(fc)
-		fmt.Println(err.Error())
+		if err != nil {
+			fmt.Println(err)
+		}
 		if err == nil {
 			return res
 		}
@@ -75,7 +77,10 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 	orderBalance.ParentPath = userBase.ParentPath
 	orderBalance.BalanceBefore = userMoney.Balance
 	orderBalance.BalanceAfter = userMoney.Balance + this.Amount
+	orderBalance.Balance = this.Amount
 	orderBalance.Title = this.Title
+	orderBalance.Pid = userBase.Pid
+	orderBalance.BalanceCode = this.BalanceCode
 	orderBalance.Note = this.Note
 	orderBalance.ParentPath = userBase.ParentPath
 	if this.BalanceCode <= 0 {
@@ -92,14 +97,14 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 	}
 
 	switch this.BalanceCode {
-	case blance_code.Bet:
+	case balance_code.Bet:
 		userMoney.TotalBet += this.Amount
 		userMoney.TotalProfit -= this.Amount
-	case blance_code.Deposit:
+	case balance_code.Deposit:
 		userMoney.TotalDeposit += this.Amount
-	case blance_code.Withdraw:
+	case balance_code.Withdraw:
 		userMoney.TotalWithdraw += this.Amount
-	case blance_code.Won:
+	case balance_code.Won:
 		userMoney.TotalProfit += this.Won
 
 	}
@@ -116,7 +121,7 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 			return err
 		}
 		err = tx.Table("user_amount").Where("uid=? and balance=?", this.Uid, orderBalance.BalanceBefore).Updates(
-			map[string]int64{
+			map[string]interface{}{
 				"balance":        orderBalance.BalanceAfter,
 				"total_bet":      userMoney.TotalBet,
 				"total_deposit":  userMoney.TotalDeposit,
@@ -136,5 +141,6 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 	}
 	result.Message = "Success"
 	result.Code = 200
+	result.IsSuccess = true
 	return result, nil
 }

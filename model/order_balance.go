@@ -8,7 +8,7 @@ import (
 )
 
 func (this *OrderBalance) OrderBalanceDB() *gorm.DB {
-	return utils.DB.Table("order_amount")
+	return utils.DB.Table("order_balance")
 }
 
 type OrderBalance struct {
@@ -16,7 +16,7 @@ type OrderBalance struct {
 	Uid             int64
 	Account         string
 	Pid             int64
-	AmountCode      int32
+	BalanceCode     int32
 	Title           string
 	BalanceBefore   int64
 	BalanceAfter    int64
@@ -29,7 +29,7 @@ type OrderBalance struct {
 }
 
 func (OrderBalance) TableName() string {
-	return "order_amount"
+	return "order_balance"
 }
 
 func (this *OrderBalance) GetByOrderNoCache(order_no int32) *OrderBalance {

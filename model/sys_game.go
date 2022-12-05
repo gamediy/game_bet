@@ -16,10 +16,10 @@ type SysGame struct {
 	Name            string    `json:"name"`
 	Status          int32     `json:"status"`
 	CreatedAt       time.Time `json:"created_at"`
-	StartTime       time.Time `json:"start_time"`
-	EndTime         time.Time `json:"end_time"`
+	StartTime       string    `json:"start_time"`
+	EndTime         string    `json:"end_time"`
 	TotalIssue      int32     `json:"total_issue"`
-	IntervalSeconds int32     `json:"interval_seconds"`
+	IntervalSeconds int64     `json:"interval_seconds"`
 	Type            string    `json:"type"`
 	Sort            int32     `json:"sort"`
 }

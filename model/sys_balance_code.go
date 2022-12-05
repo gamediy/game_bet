@@ -6,11 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (this *SysAmountCode) SysAmountCodeDB() *gorm.DB {
-	return utils.DB.Table("blance_code")
+func (this *SysBalanceCode) SysBalanceCodeDB() *gorm.DB {
+	return utils.DB.Table("balance_code")
 }
 
-type SysAmountCode struct {
+type SysBalanceCode struct {
 	Code   int32 `gorm:"primary_key"`
 	Remark string
 	Status int32
@@ -18,15 +18,15 @@ type SysAmountCode struct {
 	Title  string
 }
 
-func (SysAmountCode) TableName() string {
-	return "blance_code"
+func (SysBalanceCode) TableName() string {
+	return "balance_code"
 }
 
-func (this *SysAmountCode) GetByCodeCache(code int32) *SysAmountCode {
-	redisKey := fmt.Sprintf("blance_code:code:%d", code)
+func (this *SysBalanceCode) GetByCodeCache(code int32) *SysBalanceCode {
+	redisKey := fmt.Sprintf("balance_code:code:%d", code)
 	err := utils.RedisGet(redisKey, this)
 	if err != nil {
-		this.SysAmountCodeDB().First(this, code)
+		this.SysBalanceCodeDB().First(this, code)
 		if this.Code >= 0 {
 			utils.RedisSet(redisKey, this, -1)
 		}
