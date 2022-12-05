@@ -47,7 +47,7 @@ func (g *GrpcClient) ExchangeByID(id int64) (*core.Exchange, error) {
 	return result, nil
 }
 
-// ExchangeCreate from two tokens (TRC10/TRX) only
+// ExchangeCreate from two_size tokens (TRC10/TRX) only
 func (g *GrpcClient) ExchangeCreate(
 	from string,
 	tokenID1 string,
