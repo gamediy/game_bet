@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bet/core/auth"
 	"bet/game/services"
 	"bet/utils"
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 
 func AmountList(gx *gin.Context) {
 
-	value := gx.Query("amount_net")
+	value := gx.Query("amount_type")
 	gx.JSON(http.StatusOK, services.AmountList{
 		AmountType: value,
 	}.GetList())
@@ -31,5 +32,16 @@ func GameOpen(gx *gin.Context) {
 	open := services.GameOpen{}
 	gx.BindJSON(&open)
 	gx.JSON(http.StatusOK, open.GetList)
+
+}
+func DepositRecord(gx *gin.Context) {
+	drp := services.DepositRecordReq{}
+	gx.BindJSON(&drp)
+	gx.JSON(http.StatusOK, drp.GetList(auth.GetUserInfo(gx)))
+
+}
+func GameList(gx *gin.Context) {
+	gl := services.GameList{}
+	gx.JSON(http.StatusOK, gl.GetGameList)
 
 }

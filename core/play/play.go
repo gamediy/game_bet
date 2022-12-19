@@ -9,11 +9,17 @@ const (
 )
 
 type Play interface {
-	Settle() []Won //结算
-
+	Won(openResult interface{}, betContent string, won *Won) //结算
+	Check(betContent string) error
 }
 
-type Won struct {
+type WonItem struct {
 	PlayName string
 	PlayCode int32
+}
+type Won struct {
+	GameCode int32
+	GameName string
+
+	List []WonItem
 }

@@ -23,6 +23,7 @@ type GameOpen struct {
 	CloseAt          time.Time `json:"close_at"`
 	OpenResultDetail string    `json:"open_result_detail"`
 	WonResult        string    `json:"won_result"`
+	IssueDetail      int64     `json:"issue_detail"`
 }
 
 func (GameOpen) TableName() string {

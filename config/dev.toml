@@ -1,6 +1,6 @@
 [database]
-main="Bet:T75HTTsTNWCJi6Cd@tcp(154.91.228.22:3306)/bet?charset=utf8&parseTime=True&loc=Local"
+main="root:admin123...@tcp(127.0.0.1:3306)/bet?charset=utf8&parseTime=True&loc=Local"
 sys=""
 [redis]
-addr="154.91.228.22:63790"
-password="admin123..."
+addr="127.0.0.1:6379"
+password=""

@@ -30,9 +30,12 @@ func (this AmountList) GetListByType(amount_type string) utils.Result[*map[strin
 }
 
 func (this AmountList) GetList() utils.Result[[]model.SysAmountItem] {
-	items := []model.SysAmountItem{}
+	items := make([]model.SysAmountItem, 0)
 	utils.DB.Find(&items, "type=? and status=1", this.AmountType)
-	ajaxResult := utils.Result[[]model.SysAmountItem]{}
+	ajaxResult := utils.Result[[]model.SysAmountItem]{
+		Code:      200,
+		IsSuccess: true,
+	}
 	ajaxResult.Data = items
 	return ajaxResult
 

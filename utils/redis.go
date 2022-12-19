@@ -22,6 +22,7 @@ func redisInit() {
 func RedisGet[T any](key string, data *T) error {
 	result, err := RedisMain.Get(context.Background(), key).Result()
 	if err != nil {
+
 		return err
 	}
 	if result == "" {

@@ -10,6 +10,7 @@ import (
 func main() {
 	fmt.Println(viper.Get("env"))
 	utils.Init()
+	defer utils.SqlDb.Close()
 	router.Run()
 
 }

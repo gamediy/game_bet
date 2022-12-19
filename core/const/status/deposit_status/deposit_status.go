@@ -2,6 +2,6 @@ package deposit_status
 
 const (
 	Processing = 1
-	Success    = 2
+	Successful = 2
 	Fail       = -1
 )

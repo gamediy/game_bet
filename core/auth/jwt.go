@@ -4,6 +4,7 @@ import (
 	"bet/core/key"
 	"bet/model"
 	"bet/utils"
+	"errors"
 	"fmt"
 	jwt "github.com/appleboy/gin-jwt/v2"
 
@@ -38,10 +39,11 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*UserInfo); ok {
 				return jwt.MapClaims{
-					"Uid":     v.Uid,
-					"Account": v.Account,
-					"Email":   v.Email,
-					"Pid":     v.Pid,
+					"Uid":        v.Uid,
+					"Account":    v.Account,
+					"Email":      v.Email,
+					"Pid":        v.Pid,
+					"ParentPath": v.ParentPath,
 				}
 			}
 			return jwt.MapClaims{}
@@ -66,14 +68,14 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
+				return "", errors.New("incorrect Email or Password")
 			}
 			userID := loginVals.Account
 			password := utils.Md5(utils.Md5Key + loginVals.Password)
 			var user model.UserBase
 			utils.DB.First(&user, "account=? and password=? and status=1", userID, password)
 			if user.Uid == 0 {
-				return nil, jwt.ErrFailedAuthentication
+				return "", errors.New("incorrect Email or Password")
 			}
 			u := &UserInfo{
 				Account:    userID,
@@ -98,8 +100,8 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 			if !ok {
 				return false
 			}
-			utils.RedisGet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, v.Uid), v)
-			if v == nil {
+			err := utils.RedisGet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, v.Uid), v)
+			if err != nil {
 				return false
 			}
 

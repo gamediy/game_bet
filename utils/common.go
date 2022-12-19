@@ -1,10 +1,16 @@
 package utils
 
 import (
+	"context"
 	"crypto/md5"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis_rate/v9"
 	"math"
+	"net/http"
 )
 
 const Md5Key = "u8r7XR1z"
@@ -49,4 +55,36 @@ func PreciseToFloat64(num float64, retain int) float64 {
 // 精准int64
 func PreciseToInt64(num int64, retain int) int64 {
 	return int64(Int64ToFloat64(num, retain))
+}
+
+func NewRateLimiter(path string, useSubject bool, limit redis_rate.Limit) func(c *gin.Context) {
+	ctx := context.Background()
+	rdb := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+	_ = rdb.FlushDB(ctx).Err()
+	return func(c *gin.Context) {
+
+		key := path
+		if useSubject {
+			key += ":" + c.Request.Header.Get("Authorization")
+		}
+		ctx := context.Background()
+		limiter := redis_rate.NewLimiter(rdb)
+		res, err := limiter.Allow(ctx, key, limit)
+		if err != nil {
+			panic(err)
+		}
+
+		log.Debug("allowed: ", res.Allowed, ", remaining: ", res.Remaining)
+		if res.Allowed == 0 {
+			r := Result[string]{
+				Code:    500,
+				Message: "limit",
+			}
+			c.JSON(http.StatusOK, r)
+			c.Abort()
+			return
+		}
+	}
 }

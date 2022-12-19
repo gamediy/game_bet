@@ -27,6 +27,8 @@ type OrderDeposit struct {
 	AmountItemCode int32     `json:"amount_item_code"`
 	Protocol       string    `json:"protocol"`
 	Currency       string    `json:"currency"`
+	ParentPath     string    `json:"parent_path"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 func (OrderDeposit) TableName() string {

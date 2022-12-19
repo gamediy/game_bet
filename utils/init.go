@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"database/sql"
+	"fmt"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -9,7 +11,7 @@ import (
 )
 
 var DB *gorm.DB
-
+var SqlDb *sql.DB
 var err error
 
 var once sync.Once
@@ -23,6 +25,9 @@ func mysqlInit() {
 	if err != nil {
 		panic(err.Error())
 	}
+	SqlDb, _ = DB.DB()
+	SqlDb.SetMaxOpenConns(1000)
+
 }
 
 func Init() {
@@ -35,11 +40,18 @@ func Init() {
 
 	})
 }
+func Destroy() {
+	fmt.Println("destory")
+	db, _ := DB.DB()
+	db.SetMaxOpenConns(1000)
+	defer db.Close()
+}
 
 func configInit() {
 	env := viper.Get("env")
 	if env == nil {
-		panic("please set env")
+		env = "dev"
+		fmt.Println("please set env")
 	}
 	viper.SetConfigName(env.(string))
 	viper.SetConfigType("toml")

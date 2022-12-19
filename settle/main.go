@@ -1,13 +1,20 @@
 package main
 
 import (
-	"bet/core/play"
-	"bet/core/play/init_play"
+	"bet/settle/services"
+	"bet/utils"
 	"fmt"
 )
 
 func main() {
-	init_play.PlayList[play.TwoPalyType].Settle()
+	utils.Init()
 
+	settle := services.Settle{
+		GameName:   "",
+		GameCode:   1000,
+		OpenResult: 1,
+	}
+	settle.Calc()
+	///init_play.PlayList[play.TwoPalyType].Settle()
 	fmt.Println("settle")
 }

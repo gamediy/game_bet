@@ -21,6 +21,7 @@ type GameOpenItem struct {
 	Status     int32  `json:"status"`
 	GameName   string `json:"game_name"`
 	GameCode   int32  `json:"game_code"`
+	PlayType   string `json:"play_type"`
 }
 
 func (GameOpenItem) TableName() string {
