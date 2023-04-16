@@ -1,0 +1,2 @@
+insert into bet.user_digital (id, address, net, status, count, private_key, total_deposit, uid, account)
+values  (2, 'TBAP1KXLn96QAMqqXmMCfc7bs1sSHhBLEV', 'TRON', 1, 0, '9504104f41c12a2073d7253179c5064f8d3b3bac719f75971b84e576bb82954f', 0, 27, 'test2@gmail.com');

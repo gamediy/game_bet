@@ -1,0 +1,3 @@
+insert into bet.order_withdraw (order_no, account, uid, pid, status, finish_at, detail, status_remark, amount, sys_remark, address, amount_finally, fee, created_at, net, amount_item_code, currency, protocol)
+values  (1598192344660709376, 'test2@gmail.com', 27, 0, 1, '0000-00-00 00:00:00', '', 'Processing', 99, '', '江西省商丘市宁蒗彝族自治县', 0, 1, '2022-12-01 13:49:11', '', 0, '', ''),
+        (1598199046508384256, 'test2@gmail.com', 27, 0, 1, '0000-00-00 00:00:00', '', 'Processing', 99, '', '江西省商丘市宁蒗彝族自治县', 0, 1, '2022-12-01 14:15:55', '', 0, '', '');

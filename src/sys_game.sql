@@ -1,0 +1,2 @@
+insert into bet.sys_game (code, name, status, created_at, start_time, end_time, total_issue, interval_seconds, type, sort)
+values  (1000, 'BTC/USDT(3)', 1, '2022-12-01 19:58:59', '00:00:00', '23:59:59', 450, 125, '1', 1);
