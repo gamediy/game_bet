@@ -20,8 +20,8 @@ type SysGame struct {
 	EndTime         string    `json:"end_time"`
 	TotalIssue      int32     `json:"total_issue"`
 	IntervalSeconds int64     `json:"interval_seconds"`
-	Type            string    `json:"type"`
 	Sort            int32     `json:"sort"`
+	CloseSeconds    int32     `json:"close_seconds"`
 }
 
 func (SysGame) TableName() string {
@@ -34,7 +34,7 @@ func (this *SysGame) GetByCodeCache(code int32) *SysGame {
 	if err != nil {
 		this.SysGameDB().First(this, code)
 		if this.Code >= 0 {
-			utils.RedisSet(redisKey, this, -1)
+			utils.RedisSet(redisKey, this, 3600)
 		}
 	}
 	return this

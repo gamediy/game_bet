@@ -8,6 +8,7 @@ package model
 
 import (
 	"time"
+    "gorm.io/gorm"
 )
 
 func (this *<%=GetTableName() %>) <%=GetTableName() %>DB() *gorm.DB {
@@ -25,7 +26,7 @@ func (<%=GetTableName() %>) TableName() string {
 	return "<%=Table.Name%>"
 }
 
-func (this *<%=GetTableName() %>) GetBy<%=GetName(Table.Columns[0].Name) %>Cache(<%=Table.Columns[0].Name%> int32) *<%=GetTableName() %> {
+func (this *<%=GetTableName() %>) GetBy<%=GetName(Table.Columns[0].Name) %>Cache(<%=Table.Columns[0].Name%> <%=GetType(Table.Columns[0].NativeType)%>) *<%=GetTableName() %> {
 	redisKey := fmt.Sprintf("<%=Table.Name%>:<%=Table.Columns[0].Name%>:%d", <%=Table.Columns[0].Name%>)
 	err := utils.RedisGet(redisKey, this)
 	if err != nil {

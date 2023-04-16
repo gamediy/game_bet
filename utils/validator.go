@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -15,18 +16,14 @@ var (
 	Validate *validator.Validate
 )
 
-func InputValidate[T any](obj interface{}, res *Result[T]) error {
+func InputValidate(obj interface{}) error {
 	err = Validate.Struct(obj)
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
 		for _, v := range errs {
 			s := v.Translate(Trans)
-			res.Code = 500
-			res.Message = s
-			res.IsSuccess = false
-			return v
+			return errors.New(s)
 		}
-
 	}
 	return nil
 }

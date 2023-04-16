@@ -5,11 +5,11 @@ import (
 	"bet/core/play/two"
 )
 
-var PlayList map[string]play.Play
+var PlayList map[int32]play.Play
 
 func init() {
-	PlayList = make(map[string]play.Play)
+	PlayList = make(map[int32]play.Play)
 	t := two.TwoSize{}
-	PlayList[play.TwoPalyType] = &t
+	PlayList[play.TwoSize] = &t
 
 }

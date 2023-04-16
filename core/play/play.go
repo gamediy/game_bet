@@ -1,11 +1,11 @@
 package play
 
 const (
-	BigPlayCode   = 100
-	SmallPlayCode = 101
+	TwoSize_Big   = 1000
+	TwoSize_Small = 1001
 )
 const (
-	TwoPalyType = "Two"
+	TwoSize = 100
 )
 
 type Play interface {

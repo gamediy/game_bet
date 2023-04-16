@@ -21,6 +21,8 @@ type SysGamePlay struct {
 	Sort     int32  `json:"sort"`
 	BetMin   int64  `json:"bet_min"`
 	BetMax   int64  `json:"bet_max"`
+	TypeName string `json:"type_name"`
+	TypeCode int32  `json:"type_code"`
 }
 
 func (SysGamePlay) TableName() string {

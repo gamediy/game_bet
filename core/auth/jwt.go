@@ -126,7 +126,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 		// TokenLookup: "cookie:token",
 
 		// TokenHeadName is a string in the header. Default value is "Bearer"
-		TokenHeadName: "2xbet",
+		TokenHeadName: "",
 
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,

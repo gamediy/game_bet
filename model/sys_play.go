@@ -11,10 +11,11 @@ func (this *SysPlay) SysPlayDB() *gorm.DB {
 }
 
 type SysPlay struct {
-	Code   int32  `gorm:"primary_key" json:"code"`
-	Name   string `json:"name"`
-	Status int32  `json:"status"`
-	Type   string `json:"type"`
+	Code     int32  `gorm:"primary_key" json:"code"`
+	Name     string `json:"name"`
+	Status   int32  `json:"status"`
+	TypeName string `json:"type_name"`
+	TypeCode int32  `json:"type_code"`
 }
 
 func (SysPlay) TableName() string {

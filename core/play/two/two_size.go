@@ -11,12 +11,12 @@ type TwoSize struct {
 
 func (TwoSize) Won(openResult interface{}, betContent string, won *play.Won) {
 	w := play.WonItem{
-		PlayCode: play.SmallPlayCode,
+		PlayCode: play.TwoSize_Small,
 		PlayName: "Small",
 	}
 	open := openResult.(int)
 	if open > 4 {
-		w.PlayCode = play.BigPlayCode
+		w.PlayCode = play.TwoSize_Big
 		w.PlayName = "Big"
 	}
 

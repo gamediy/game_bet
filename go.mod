@@ -45,6 +45,7 @@ require (
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang-module/carbon v1.7.2 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/gorm v1.9.12 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
