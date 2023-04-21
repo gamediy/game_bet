@@ -21,6 +21,7 @@ type GameIssueRespone struct {
 	StatusStr      string    `json:"status_str"`
 	TimeNow        time.Time `json:"time_now"`
 	Date           string    `json:"date"`
+	Name           string    `json:"name"`
 }
 
 func GetIssue(gameCode int32) (GameIssueRespone, error) {
@@ -32,6 +33,7 @@ func GetIssue(gameCode int32) (GameIssueRespone, error) {
 	if game.Status != 1 {
 		return currentIssue, errors.New("Status Off")
 	}
+	currentIssue.Name = game.Name
 	//2006-01-02 15:04:05
 	issueList := make([]GameIssueRespone, 0)
 	format := time.Now().Format("2006-01-02")
@@ -62,7 +64,7 @@ func GetIssue(gameCode int32) (GameIssueRespone, error) {
 			v.StatusStr = "Betting"
 			if v.CloseCountdown <= 0 {
 				v.Status = 2
-				v.StatusStr = "Waiting"
+				v.StatusStr = "Drawing"
 			}
 			currentIssue = v
 			continue

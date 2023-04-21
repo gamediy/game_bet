@@ -1,17 +1,29 @@
 package controller
 
 import (
+	"bet/core/auth"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type Controller struct {
-	Context *gin.Context
-	Orm     *gorm.DB
-	Errors  error
+	Context  *gin.Context
+	Orm      *gorm.DB
+	Errors   error
+	UserInfo *auth.UserInfo
 }
 
+func (e *Controller) GetUserInfo() *Controller {
+	uid := e.Context.Keys["Uid"]
+	if uid == nil {
+		e.UserInfo = nil
+		return e
+	}
+	e.UserInfo = uid.(*auth.UserInfo)
+
+	return e
+}
 func (e *Controller) AddError(err error) {
 	if e.Errors == nil {
 		e.Errors = err
@@ -64,42 +76,25 @@ func (e *Controller) Response(values ...interface{}) *Controller {
 
 	// 获取参数个数
 	n := len(values)
-
-	// 判断最后一个参数是否是 error 类型
-	if n > 1 {
-		lastArg := values[n-1]
-		if err, ok := lastArg.(error); ok {
-			if err != nil {
-
-				result := Result{}
-				result.Code = 500
-				result.IsSuccess = false
-				result.Message = err.Error()
-				e.Context.JSON(200, result)
-				return e
-			}
-		}
-	} else {
-		lastArg := values[0]
-		if err, ok := lastArg.(error); ok {
-			if err != nil {
-				result := Result{}
-				result.Code = 500
-				result.IsSuccess = false
-				result.Message = err.Error()
-				e.Context.JSON(200, result)
-				return e
-			}
-		} else {
+	lastArg := values[n-1]
+	if err, ok := lastArg.(error); ok {
+		if err != nil {
 			result := Result{}
-			result.Code = 200
-			result.Data = values[0]
-			result.IsSuccess = true
-			result.Message = ""
-			e.Context.JSON(200, result)
+			result.Code = 500
+			result.IsSuccess = false
+			result.Message = err.Error()
+
+			e.Context.AbortWithStatusJSON(200, result)
 			return e
 		}
+
 	}
+	result := Result{}
+	result.Code = 200
+	result.IsSuccess = true
+	result.Data = values[0]
+
+	e.Context.AbortWithStatusJSON(200, result)
 	return e
 
 }

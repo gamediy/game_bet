@@ -21,6 +21,7 @@ type UserInfo struct {
 	Xid        string
 	Email      string
 	ParentPath string
+	IP         string
 }
 
 type login struct {
@@ -63,6 +64,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 				Email:      claims["Email"].(string),
 				Pid:        pid,
 				ParentPath: claims["ParentPath"].(string),
+				IP:         c.ClientIP(),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -84,6 +86,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 				Xid:        user.Xid,
 				Pid:        user.Pid,
 				ParentPath: user.ParentPath,
+				IP:         c.ClientIP(),
 			}
 			err := utils.RedisSet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, user.Uid), u, time.Hour*480)
 			if err != nil {

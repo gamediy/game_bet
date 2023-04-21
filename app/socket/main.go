@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bet/app/socket/model"
 	"bet/core/auth"
 
-	"bet/socket/model"
 	"bet/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

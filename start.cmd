@@ -1,3 +1,3 @@
-go run bet/user
-go run bet/game
-
+start game.cmd
+start user.cmd
+start socket.cmd
