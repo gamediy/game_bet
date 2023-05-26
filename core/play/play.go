@@ -1,21 +1,20 @@
 package play
 
 const (
-	TwoSize_Big   = 1000
-	TwoSize_Small = 1001
+	TwoSize_Big   = "BIG"
+	TwoSize_Small = "SMALL"
 )
 const (
-	TwoSize = 100
+	TwoSize = "TwoSize"
 )
 
 type Play interface {
-	Won(openResult interface{}, betContent string, won *Won) //结算
-	Check(betContent string) error
+	Won(openResult interface{}, betContent interface{}, won *Won) //结算
+	Check(betContent interface{}) error
 }
 
 type WonItem struct {
-	PlayName string
-	PlayCode int32
+	PlayCode string
 }
 type Won struct {
 	GameCode int32

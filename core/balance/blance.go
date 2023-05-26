@@ -2,6 +2,7 @@ package balance
 
 import (
 	"bet/core/const/balance_code"
+	"bet/db"
 	"bet/model"
 	"bet/utils"
 	"context"
@@ -20,39 +21,35 @@ type BalanceUpdate struct {
 	Note            string
 }
 
-func (this *BalanceUpdate) Update(fc func(tx *gorm.DB) error) *utils.Result[string] {
+func (this *BalanceUpdate) Update(fc func(tx *gorm.DB) error) error {
 	timeout, cancelFunc := context.WithTimeout(
 		context.Background(),
 		5*time.Second,
 	)
 	defer cancelFunc()
 	var err error
-	var res *utils.Result[string]
+
 	for {
-		res, err = this.updateExec(fc)
+		err = this.updateExec(fc)
 		if err != nil {
 			fmt.Println(err)
 		}
 		if err == nil {
-			return res
+			return nil
 		}
 		select {
 		case <-timeout.Done():
-			return res
+			return err
 		case <-time.After(1 * time.Second):
 
 		}
 	}
-	return res
+	return err
 }
-func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result[string], error) {
+func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) error {
 
 	if this.Amount < 0 {
 		this.Amount = -this.Amount
-	}
-	result := &utils.Result[string]{
-		Code:      500,
-		IsSuccess: false,
 	}
 
 	userBase := &model.UserBase{}
@@ -60,13 +57,10 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 	userMoney := &model.UserAmount{}
 	err := userMoney.UserAmountDB().Raw("select *  from user_amount where uid=? for update", this.Uid).Scan(userMoney).Error
 	if err != nil {
-		result.Message = err.Error()
-		return result, err
+		return err
 	}
-
 	if userMoney.Uid <= 0 {
-		result.Message = "No such user"
-		return result, nil
+		return fmt.Errorf("No such user")
 	}
 	orderBalance := &model.OrderBalance{}
 	orderBalance.OrderNo = utils.SnowflakeId()
@@ -85,15 +79,15 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 	orderBalance.ParentPath = userBase.ParentPath
 	if this.BalanceCode <= 0 {
 		if userMoney.Balance < this.Amount {
-			result.Message = "Insufficient account balance"
-			return result, nil
+
+			return fmt.Errorf("Insufficient account balance")
 		}
 		orderBalance.Balance = -this.Amount
 		orderBalance.BalanceAfter = userMoney.Balance - this.Amount
 	}
 	if orderBalance.BalanceAfter < 0 {
-		result.Message = "Balance error"
-		return result, nil
+
+		return fmt.Errorf("Balance error")
 	}
 
 	switch this.BalanceCode {
@@ -109,7 +103,7 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 
 	}
 
-	err = utils.DB.Transaction(func(tx *gorm.DB) error {
+	err = db.GormDB.Transaction(func(tx *gorm.DB) error {
 		if fc != nil {
 			err := fc(tx)
 			if err != nil {
@@ -136,11 +130,8 @@ func (this *BalanceUpdate) updateExec(fc func(tx *gorm.DB) error) (*utils.Result
 		return nil
 	})
 	if err != nil {
-		result.Message = err.Error()
-		return result, err
+
+		return err
 	}
-	result.Message = "Success"
-	result.Code = 200
-	result.IsSuccess = true
-	return result, nil
+	return nil
 }

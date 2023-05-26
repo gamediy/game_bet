@@ -1,14 +1,14 @@
 package model
 
 import (
-	"bet/utils"
+	"bet/db"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
 
 func (this *OrderDeposit) OrderDepositDB() *gorm.DB {
-	return utils.DB.Table("order_deposit")
+	return db.GormDB.Table("order_deposit")
 }
 
 type OrderDeposit struct {
@@ -37,11 +37,11 @@ func (OrderDeposit) TableName() string {
 
 func (this *OrderDeposit) GetByOrderNoCache(order_no int32) *OrderDeposit {
 	redisKey := fmt.Sprintf("order_deposit:order_no:%d", order_no)
-	err := utils.RedisGet(redisKey, this)
+	err := db.RedisGet(redisKey, this)
 	if err != nil {
 		this.OrderDepositDB().First(this, order_no)
 		if this.OrderNo > 0 {
-			utils.RedisSet(redisKey, this, -1)
+			db.RedisSet(redisKey, this, -1)
 		}
 	}
 	return this

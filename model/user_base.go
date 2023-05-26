@@ -1,13 +1,13 @@
 package model
 
 import (
-	"bet/utils"
+	"bet/db"
 	"gorm.io/gorm"
 	"time"
 )
 
 func (this *UserBase) UserBaseDB() *gorm.DB {
-	return utils.DB.Table("user_base")
+	return db.GormDB.Table("user_base")
 }
 
 type UserBase struct {

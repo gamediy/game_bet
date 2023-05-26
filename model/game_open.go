@@ -1,14 +1,14 @@
 package model
 
 import (
-	"bet/utils"
+	"bet/db"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
 
 func GameOpenDB() *gorm.DB {
-	return utils.DB.Table("game_open")
+	return db.GormDB.Table("game_open")
 }
 
 type GameOpen struct {
@@ -32,11 +32,11 @@ func (GameOpen) TableName() string {
 
 func (this *GameOpen) GetByIdCache(id int32) *GameOpen {
 	redisKey := fmt.Sprintf("game_open:id:%d", id)
-	err := utils.RedisGet(redisKey, this)
+	err := db.RedisGet(redisKey, this)
 	if err != nil {
 		GameOpenDB().First(this, id)
 		if this.Id > 0 {
-			utils.RedisSet(redisKey, this, -1)
+			db.RedisSet(redisKey, this, -1)
 		}
 	}
 	return this

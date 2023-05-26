@@ -12,7 +12,7 @@ import (
 )
 
 func (this *<%=GetTableName() %>) <%=GetTableName() %>DB() *gorm.DB {
-	return utils.DB.Table("<%=Table.Name%>")
+	return db.GormDB.Table("<%=Table.Name%>")
 }
 
 <%if(Table.Description!=""){%>//<%=Table.Description %><%}%>   
@@ -28,11 +28,11 @@ func (<%=GetTableName() %>) TableName() string {
 
 func (this *<%=GetTableName() %>) GetBy<%=GetName(Table.Columns[0].Name) %>Cache(<%=Table.Columns[0].Name%> <%=GetType(Table.Columns[0].NativeType)%>) *<%=GetTableName() %> {
 	redisKey := fmt.Sprintf("<%=Table.Name%>:<%=Table.Columns[0].Name%>:%d", <%=Table.Columns[0].Name%>)
-	err := utils.RedisGet(redisKey, this)
+	err := db.RedisGet(redisKey, this)
 	if err != nil {
 		this.<%=GetTableName() %>DB().First(this, <%=Table.Columns[0].Name%>)
 		if this.<%=GetName(Table.Columns[0].Name) %> > 0 {
-			utils.RedisSet(redisKey, this, -1)
+			db.RedisSet(redisKey, this, -1)
 		}
 	}
 	return this

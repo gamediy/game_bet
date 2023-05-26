@@ -10,12 +10,15 @@ import (
 
 // 定义一个全局翻译器T
 var Trans ut.Translator
-
+var err error
 var (
 	uni      *ut.UniversalTranslator
 	Validate *validator.Validate
 )
 
+func init() {
+	InitTrans("en")
+}
 func InputValidate(obj interface{}) error {
 	err = Validate.Struct(obj)
 	if err != nil {

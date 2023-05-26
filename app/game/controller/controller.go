@@ -42,11 +42,23 @@ func (app Controller) DepositRecord(gx *gin.Context) {
 func (app Controller) GameCategory(gx *gin.Context) {
 	app.MakeContext(gx)
 	app.Response(services2.GetGameCategory())
-
 }
 
 func (app Controller) GameList(gx *gin.Context) {
 	s := services2.GameList{}
 	app.MakeContext(gx).Bind(&s)
 	app.Response(s.Func())
+}
+
+func (app Controller) Withdraw(gx *gin.Context) {
+	withdraw := &services2.Withdraw{}
+	app.MakeContext(gx).Bind(&withdraw).GetUserInfo()
+	app.Response(withdraw.WithdrawFunc(app.UserInfo))
+}
+func (app Controller) Bet(gx *gin.Context) {
+	bet := &services2.Bet{}
+	gx.BindJSON(bet)
+	app.MakeContext(gx).Bind(&bet).GetUserInfo()
+	app.Response(bet.BetFunc(app.UserInfo))
+
 }

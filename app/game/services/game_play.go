@@ -1,20 +1,20 @@
 package services
 
 import (
+	"bet/db"
 	"bet/model"
-	"bet/utils"
 	"log"
 )
 
 type GamePlay struct {
-	GameCode int32               `json:"game_code"`
-	PlayItem []model.SysGamePlay `json:"play_item"`
+	GameCode int32                `json:"game_code"`
+	PlayItem []model.ConfGamePlay `json:"play_item"`
 }
 
 func (this *GamePlay) GetGamePlay() *GamePlay {
 
-	sysGamePlayList := []model.SysGamePlay{}
-	err := utils.DB.Find(&sysGamePlayList, "game_code=? and status=1", this.GameCode).Error
+	sysGamePlayList := []model.ConfGamePlay{}
+	err := db.GormDB.Find(&sysGamePlayList, "game_code=? and status=1", this.GameCode).Error
 	if err != nil {
 		log.Println(err)
 	}

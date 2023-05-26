@@ -2,6 +2,7 @@ package auth
 
 import (
 	"bet/core/key"
+	"bet/db"
 	"bet/model"
 	"bet/utils"
 	"errors"
@@ -75,7 +76,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 			userID := loginVals.Account
 			password := utils.Md5(utils.Md5Key + loginVals.Password)
 			var user model.UserBase
-			utils.DB.First(&user, "account=? and password=? and status=1", userID, password)
+			db.GormDB.First(&user, "account=? and password=? and status=1", userID, password)
 			if user.Uid == 0 {
 				return "", errors.New("incorrect Email or Password")
 			}
@@ -88,7 +89,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 				ParentPath: user.ParentPath,
 				IP:         c.ClientIP(),
 			}
-			err := utils.RedisSet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, user.Uid), u, time.Hour*480)
+			err := db.RedisSet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, user.Uid), u, time.Hour*480)
 			if err != nil {
 				fmt.Println(err)
 				return nil, err
@@ -103,7 +104,7 @@ func GinJWTMiddleware() *jwt.GinJWTMiddleware {
 			if !ok {
 				return false
 			}
-			err := utils.RedisGet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, v.Uid), v)
+			err := db.RedisGet(fmt.Sprintf(key.RK_JWT_USERINFO_UID, v.Uid), v)
 			if err != nil {
 				return false
 			}

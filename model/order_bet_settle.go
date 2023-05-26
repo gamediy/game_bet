@@ -1,14 +1,14 @@
 package model
 
 import (
-	"bet/utils"
+	"bet/db"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
 
 func (this *OrderBetSettle) OrderBetSettleDB() *gorm.DB {
-	return utils.DB.Table("order_bet_settle")
+	return db.GormDB.Table("order_bet_settle")
 }
 
 type OrderBetSettle struct {
@@ -30,6 +30,8 @@ type OrderBetSettle struct {
 	CreateAt   time.Time `json:"create_at"`
 	SettleAt   time.Time `json:"settle_at"`
 	Rate       int64     `json:"rate"`
+	BetContent string    `json:"bet_content"`
+	Issue      int64     `json:"issue"`
 }
 
 func (OrderBetSettle) TableName() string {
@@ -38,11 +40,11 @@ func (OrderBetSettle) TableName() string {
 
 func (this *OrderBetSettle) GetByOrderNoCache(order_no int32) *OrderBetSettle {
 	redisKey := fmt.Sprintf("order_bet:order_no:%d", order_no)
-	err := utils.RedisGet(redisKey, this)
+	err := db.RedisGet(redisKey, this)
 	if err != nil {
 		this.OrderBetSettleDB().First(this, order_no)
 		if this.OrderNo > 0 {
-			utils.RedisSet(redisKey, this, -1)
+			db.RedisSet(redisKey, this, -1)
 		}
 	}
 	return this

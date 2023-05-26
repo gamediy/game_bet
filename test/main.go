@@ -52,17 +52,17 @@ func GenerateKey() (wif string, address1 string) {
 
 func main() {
 
-	sysGamePlayList := []model.SysGamePlay{}
+	sysGamePlayList := []model.ConfGamePlay{}
 
 	utils.DB.Find(&sysGamePlayList, "game_code=? and status=1", 1000)
 	GenerateKey()
 	a := 1136.1
 	b := a * 100
 	utils.Init()
-	as := &model.SysBalanceCode{}
+	as := &model.ConfBalanceCode{}
 	issue := game.GetIssue(1000)
 	fmt.Print(issue)
-	err := as.SysBalanceCodeDB().First(as, 100).Error
+	err := as.ConfBalanceCodeDB().First(as, 100).Error
 	if err != nil {
 
 	}

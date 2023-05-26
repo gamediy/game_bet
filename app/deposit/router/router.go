@@ -4,6 +4,7 @@ import (
 	"bet/app/deposit/controller"
 	services2 "bet/app/deposit/services"
 	"bet/core/auth"
+	"bet/db"
 	"bet/utils"
 	"fmt"
 	"github.com/axiaoxin-com/ratelimiter"
@@ -19,7 +20,7 @@ func Run() {
 	api.Use(auth.GinJWTMiddleware().MiddlewareFunc())
 	{
 
-		api.Use(ratelimiter.GinRedisRatelimiter(utils.RedisMain, ratelimiter.GinRatelimiterConfig{
+		api.Use(ratelimiter.GinRedisRatelimiter(db.RedisMain, ratelimiter.GinRatelimiterConfig{
 			// config: how to generate a limit key
 			LimitKey: func(c *gin.Context) string {
 				text := ""

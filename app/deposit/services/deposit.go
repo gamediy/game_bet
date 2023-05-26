@@ -6,6 +6,7 @@ import (
 	"bet/model"
 	"bet/net/tron"
 	"bet/utils"
+	"errors"
 	"fmt"
 )
 
@@ -14,21 +15,20 @@ type Deposit struct {
 	AmountItemCode int32   `json:"amount_item_code"`
 }
 
-func (this *Deposit) DepositFunc(info *auth.UserInfo) utils.Result[interface{}] {
-	item := &model.SysAmountItem{}
+func (this *Deposit) DepositFunc(info *auth.UserInfo) error {
+	item := &model.ConfAmountItem{}
 	amountItem := item.GetByCodeCache(this.AmountItemCode)
-	result := utils.Result[interface{}]{
-		Code:      500,
-		IsSuccess: false,
+	if amountItem == nil {
+		return errors.New("Parameter error")
 	}
 	if amountItem.Code <= 0 || amountItem.Status == 0 {
-		result.Message = "Parameter error"
-		return result
+
+		return errors.New("Parameter error")
 	}
 	money := int64(this.Amount * 100)
 	if this.Amount > float32(amountItem.Max) || this.Amount < float32(amountItem.Min) {
-		result.Message = fmt.Sprintf("Wrong deposit minimum:%d maximum:%d", amountItem.Min, amountItem.Max)
-		return result
+		return fmt.Errorf("Wrong deposit minimum:%d maximum:%d", amountItem.Min, amountItem.Max)
+
 	}
 	deposit := &model.OrderDeposit{
 		OrderNo:        utils.SnowflakeId(),
@@ -59,25 +59,13 @@ func (this *Deposit) DepositFunc(info *auth.UserInfo) utils.Result[interface{}] 
 			digital.Uid = info.Uid
 			digital.Account = info.Account
 			digital.Net = "TRON"
-
 			digital.UserDigitalDB().Create(&digital)
 		}
-
 		deposit.Address = digital.Address
 		response["address"] = digital.Address
-
 	} else if amountItem.Net == "ETH" {
-
 	}
 	err := deposit.OrderDepositDB().Create(deposit).Error
-	if err != nil {
-		result.Message = err.Error()
-		return result
-	}
-
-	result.Code = 200
-	result.IsSuccess = true
-	result.Data = response
-	return result
+	return err
 
 }

@@ -22,11 +22,12 @@ type GameIssueRespone struct {
 	TimeNow        time.Time `json:"time_now"`
 	Date           string    `json:"date"`
 	Name           string    `json:"name"`
+	GameCode       int32     `json:"game_code"`
 }
 
 func GetIssue(gameCode int32) (GameIssueRespone, error) {
 
-	game := &model.SysGame{}
+	game := &model.ConfGame{}
 	game.GetByCodeCache(gameCode)
 
 	var currentIssue GameIssueRespone
@@ -34,12 +35,14 @@ func GetIssue(gameCode int32) (GameIssueRespone, error) {
 		return currentIssue, errors.New("Status Off")
 	}
 	currentIssue.Name = game.Name
+	currentIssue.GameCode = game.Code
 	//2006-01-02 15:04:05
 	issueList := make([]GameIssueRespone, 0)
 	format := time.Now().Format("2006-01-02")
 	timeStart, _ := time.ParseInLocation("2006-01-02 15:04:05", fmt.Sprintf("%s %s", format, game.StartTime), time.Local)
 	timeEnd, _ := time.ParseInLocation("2006-01-02 15:04:05", fmt.Sprintf("%s %s", format, game.EndTime), time.Local)
 	var issueIndex int64 = 1
+
 	for timeStart.Before(timeEnd) {
 		duration, _ := time.ParseDuration(fmt.Sprintf("%ds", game.IntervalSeconds))
 		closeDur, _ := time.ParseDuration(fmt.Sprintf("-%ds", game.CloseSeconds))
@@ -66,6 +69,8 @@ func GetIssue(gameCode int32) (GameIssueRespone, error) {
 				v.Status = 2
 				v.StatusStr = "Drawing"
 			}
+			v.Name = game.Name
+			v.GameCode = game.Code
 			currentIssue = v
 			continue
 		}
@@ -73,6 +78,6 @@ func GetIssue(gameCode int32) (GameIssueRespone, error) {
 	currentIssue.CloseTimeStr = currentIssue.CloseTime.Format("2006-01-02 15:04:05")
 	currentIssue.OpenTimeStr = currentIssue.OpenTime.Format("2006-01-02 15:04:05")
 	currentIssue.StartTimeStr = currentIssue.StartTime.Format("2006-01-02 15:04:05")
-	fmt.Print(currentIssue)
+
 	return currentIssue, nil
 }

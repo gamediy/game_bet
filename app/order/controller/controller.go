@@ -2,7 +2,7 @@ package controller
 
 import (
 	services2 "bet/app/deposit/services"
-	services3 "bet/app/order/services"
+	"bet/app/game/services"
 	"bet/core/auth"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,7 +12,7 @@ func Withdraw(gx *gin.Context) {
 
 	uid := gx.Keys["Uid"]
 	info := uid.(*auth.UserInfo)
-	withdraw := &services3.Withdraw{}
+	withdraw := &services.Withdraw{}
 	gx.BindJSON(withdraw)
 	gx.JSON(http.StatusOK, withdraw.WithdrawFunc(info))
 }
@@ -25,7 +25,7 @@ func Deposit(gx *gin.Context) {
 	gx.JSON(http.StatusOK, deposit.DepositFunc(info))
 }
 func Bet(gx *gin.Context) {
-	bet := &services3.Bet{}
+	bet := &services.Bet{}
 	gx.BindJSON(bet)
 	gx.JSON(http.StatusOK, bet.BetFunc(GetUserInfo(gx)))
 }

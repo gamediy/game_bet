@@ -1,12 +1,12 @@
 package services
 
 import (
+	"bet/db"
 	"bet/model"
-	"bet/utils"
 )
 
-func GetGameCategory() []model.SysGameCategory {
-	category := []model.SysGameCategory{}
-	utils.DB.Table("sys_game_category").Find(&category, "status=1").Order("sort desc ")
+func GetGameCategory() []model.ConfGameCategory {
+	category := []model.ConfGameCategory{}
+	db.GormDB.Table("sys_game_category").Find(&category, "status=1").Order("sort desc ")
 	return category
 }

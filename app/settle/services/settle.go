@@ -13,10 +13,10 @@ import (
 )
 
 type Settle struct {
-	GameCode    int32
-	GameName    string
-	IssueDetail int64
-	OpenResult  interface{}
+	GameCode   int32
+	GameName   string
+	Issue      int64
+	OpenResult interface{}
 }
 
 func (this *Settle) Calc() error {
@@ -38,7 +38,7 @@ func (this *Settle) Calc() error {
 		return errors.New("No data")
 	}
 
-	playS := []int32{}
+	playS := []string{}
 	for _, i := range wons.List {
 		playS = append(playS, i.PlayCode)
 	}
@@ -48,7 +48,7 @@ func (this *Settle) Calc() error {
 		return errors.New("No data open item")
 	}
 	orderBets := []model.OrderBetSettle{}
-	utils.DB.Table("order_bet_settle").Find(&orderBets, "game_code=? and issue_detail=?", this.GameCode, this.IssueDetail)
+	utils.DB.Table("order_bet_settle").Find(&orderBets, "game_code=? and issue_detail=?", this.GameCode, this.Issue)
 	if len(orderBets) == 0 {
 		return errors.New("No order")
 	}
@@ -59,7 +59,7 @@ func (this *Settle) Calc() error {
 			if o.PlayCode == v.PlayCode {
 				orderBets[i].Status = order_bet_status.Won
 				orderBets[i].Rate = o.Rate
-				orderBets[i].Won = o.Rate * v.Amount
+				orderBets[i].Won = o.Rate / 100 * v.Amount
 
 			}
 		}

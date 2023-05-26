@@ -1,13 +1,13 @@
 package model
 
 import (
-	"bet/utils"
+	"bet/db"
 	"fmt"
 	"gorm.io/gorm"
 )
 
 func (this *UserAmount) UserAmountDB() *gorm.DB {
-	return utils.DB.Table("user_amount")
+	return db.GormDB.Table("user_amount")
 }
 
 type UserAmount struct {
@@ -30,11 +30,11 @@ func (UserAmount) TableName() string {
 
 func (this *UserAmount) GetByUidCache(uid int32) *UserAmount {
 	redisKey := fmt.Sprintf("user_amount:uid:%d", uid)
-	err := utils.RedisGet(redisKey, this)
+	err := db.RedisGet(redisKey, this)
 	if err != nil {
 		this.UserAmountDB().First(this, uid)
 		if this.Uid >= 0 {
-			utils.RedisSet(redisKey, this, -1)
+			db.RedisSet(redisKey, this, -1)
 		}
 	}
 	return this

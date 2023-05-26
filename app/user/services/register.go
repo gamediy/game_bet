@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bet/db"
 	"bet/model"
 	"bet/utils"
 	"errors"
@@ -35,7 +36,7 @@ func (this Register) Logic() error {
 	}
 	var count int64
 	var userBaseModel = &model.UserBase{}
-	err = utils.DB.Model(userBaseModel).Where("email=? or account=?", this.Email, this.Email).Count(&count).Error
+	err = db.GormDB.Model(userBaseModel).Where("email=? or account=?", this.Email, this.Email).Count(&count).Error
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func (this Register) Logic() error {
 	userMoneyModel.Account = userBaseModel.Account
 	userMoneyModel.Email = userBaseModel.Email
 	userMoneyModel.Balance = 0.0
-	err = utils.DB.Transaction(func(tx *gorm.DB) error {
+	err = db.GormDB.Transaction(func(tx *gorm.DB) error {
 		create := tx.Create(userBaseModel)
 		if create.Error != nil {
 			return err

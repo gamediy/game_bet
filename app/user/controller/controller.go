@@ -4,8 +4,8 @@ import (
 	"bet/app/controller"
 	"bet/app/user/services"
 	"bet/core/auth"
+	"bet/db"
 	"bet/model"
-	"bet/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -31,7 +31,7 @@ func UserInfo(gx *gin.Context) {
 	uid := gx.Keys["Uid"]
 	info := uid.(*auth.UserInfo)
 	user := model.UserAmount{}
-	utils.DB.Table("user_amount").First(&user, info.Uid)
+	db.GormDB.Table("user_amount").First(&user, info.Uid)
 	gx.JSON(http.StatusOK, gin.H{
 		"uid":     info.Uid,
 		"account": info.Account,

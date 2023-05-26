@@ -19,6 +19,9 @@ func Run() {
 		api.POST("/deposit_record", c.DepositRecord)
 		api.POST("/game_category", c.GameCategory)
 		api.POST("/game_list", c.GameList)
+		api.POST("/withdraw", controller.Withdraw)
+		api.POST("/deposit", controller.Deposit)
+		api.POST("/bet", controller.Bet)
 
 	}
 	engine.Run(":8083")
